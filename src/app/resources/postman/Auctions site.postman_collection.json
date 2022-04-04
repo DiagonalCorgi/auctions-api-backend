@@ -1,0 +1,2131 @@
+{
+	"info": {
+		"_postman_id": "5f90f095-ed41-4aa2-8d30-2c2bc1a5067b",
+		"name": "Auctions site student",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "BACKDOOR",
+			"item": [
+				{
+					"name": "POST /reset",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/reset",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /resample",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/resample",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"resample"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /executeSql",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "SELECT * FROM user;"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/executeSql",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"executeSql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /reload",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/reload",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reload"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "POST /users/register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expected response\", function() {\r",
+									"    pm.expect(pm.response.json().userId).to.be.a('number')\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"firstName\": \"Mike\",\n\t\"lastName\": \"Wheeler\",\n\t\"email\": \"mike.wheeler@hawkinsmiddle.school.us\",\n\t\"password\": \"paladin\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /users/login (incorrect password)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"mike.wheeler@hawkinsmiddle.school.us\",\n\t\"password\": \"notthepassword\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /users/login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Expected response\", function() {",
+									"    pm.expect(pm.response.json().token).to.be.a('string')",
+									"    pm.expect(pm.response.json().userId).to.be.a('number')",
+									"});",
+									"",
+									"pm.test(\"Set auth_token and user_id after login\", function() {",
+									"    const authToken = pm.response.json().token;",
+									"    if (typeof authToken !== \"undefined\") {",
+									"        pm.globals.set(\"auth_token\", authToken);",
+									"    }",
+									"    const userId = pm.response.json().userId;",
+									"    if (typeof userId !== \"undefined\") {",
+									"        pm.globals.set(\"user_id\", userId);",
+									"    }",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"mike.wheeler@hawkinsmiddle.school.us\",\n\t\"password\": \"paladin\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /users/register (missing first & last name)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"johnj@gmail.com\",\n\t\"password\": \"ranger\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /users/:id (me)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var expectedData = {\r",
+									"    \"firstName\": \"Mike\",\r",
+									"    \"lastName\": \"Wheeler\",\r",
+									"    \"email\": \"mike.wheeler@hawkinsmiddle.school.us\"\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"var data = pm.response.json()\r",
+									"pm.test(\"Expected data\", function() {\r",
+									"    pm.expect(data.firstName).to.equal(\"Mike\")\r",
+									"    pm.expect(data.lastName).to.equal(\"Wheeler\")\r",
+									"    pm.expect(data.email).to.equal(\"mike.wheeler@hawkinsmiddle.school.us\")\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{user_id}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /users/:id (another user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"var data = pm.response.json()\r",
+									"pm.test(\"Expected data\", function() {\r",
+									"    pm.expect(data.firstName).to.equal(\"Kristy\")\r",
+									"    pm.expect(data.lastName).to.equal(\"Lincoln\")\r",
+									"    if(!data.hasOwnProperty(\"email\")){\r",
+									"        pm.expect(!data.hasOwnProperty(\"email\")).to.equal(true);\r",
+									"    } else {\r",
+									"        pm.expect.fail('Email is present')\r",
+									"    }\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/users/1",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH /users/:id (me)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"password\": \"new secure password\",\n\t\"currentPassword\": \"paladin\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{user_id}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH /users/:id (another user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Eleven\",\n\t\"email\": \"el@hawkinslab.com\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/1",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /users/logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Remove auth_token and user_id after logout\", function() {",
+									"    if (responseCode.code === 200) {",
+									"        pm.globals.set(\"auth_token\", null);",
+									"        pm.globals.set(\"user_id\", null);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/logout",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /users/logout (no header)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/logout",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /executeSql (set user token for testing)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Set user token after sql update\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    if (pm.response.code == 200) {\r",
+									"        //below is duplicated, due to some issues with collection running\r",
+									"        pm.globals.set(\"auth_token\", \"test_token\");\r",
+									"        pm.globals.set(\"user_id\", 18);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// define the body with variables before sending",
+									"let token_body =  \"UPDATE `user` SET `auth_token`='token_placeholder' WHERE `id`={{user_id}};\";",
+									"token_body = token_body.replace('token_placeholder', \"test_token\");",
+									"pm.variables.set('token_body', token_body);",
+									"pm.globals.set(\"auth_token\", \"test_token\");",
+									"pm.globals.set(\"user_id\", 18);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{token_body}}",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/executeSql",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"executeSql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "auctions",
+			"item": [
+				{
+					"name": "GET /auctions/",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var data = pm.response.json();\r",
+									"pm.test(\"Response has length 15\", function () {\r",
+									"    pm.expect(data.auctions.length).to.equal(15)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Count has correct value 15\", function () {\r",
+									"    pm.expect(data.count).to.equal(15)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is ordered correctly\", function () {\r",
+									"    pm.expect(data.auctions[0]['auctionId']).to.equal(11);\r",
+									"    pm.expect(data.auctions[14]['auctionId']).to.equal(9);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /auctions/ (with all parameters)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"expectedData = {\r",
+									"        \"auctionId\": 1,\r",
+									"        \"title\": \"Vintage Lego Set\",\r",
+									"        \"reserve\": 25,\r",
+									"        \"sellerId\": 1,\r",
+									"        \"categoryId\": 23,\r",
+									"        \"sellerFirstName\": \"Kristy\",\r",
+									"        \"sellerLastName\": \"Lincoln\",\r",
+									"        \"endDate\": \"2022-05-01T10:30:00.000Z\",\r",
+									"        \"numBids\": 9,\r",
+									"        \"highestBid\": 100\r",
+									"    };\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var data = pm.response.json();\r",
+									"pm.test(\"Expect correct count 1\", function() {\r",
+									"    pm.expect(data.count).to.equal(1)\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Response has length 1\", function () {\r",
+									"    pm.expect(data.auctions.length).to.equal(1)\r",
+									"});\r",
+									"\r",
+									"data = data.auctions[0]\r",
+									"pm.test(\"Expected auction returned\", function() {\r",
+									"    pm.expect(data.auctionId).to.equal(expectedData.auctionId);\r",
+									"    pm.expect(data.title).to.equal(expectedData.title);\r",
+									"    pm.expect(data.categoryId).to.equal(expectedData.categoryId);\r",
+									"    pm.expect(data.sellerId).to.equal(expectedData.sellerId);\r",
+									"    pm.expect(data.sellerFirstName).to.equal(expectedData.sellerFirstName);\r",
+									"    pm.expect(data.sellerLastName).to.equal(expectedData.sellerLastName);\r",
+									"    pm.expect(data.reserve).to.equal(expectedData.reserve);\r",
+									"    pm.expect(data.numBids).to.equal(expectedData.numBids);\r",
+									"    pm.expect(data.highestBid).to.equal(expectedData.highestBid);\r",
+									"    pm.expect(data.endDate).to.equal(expectedData.endDate);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions?q=Lego&categoryIds=23&sellerId=1&sortBy=RESERVE_ASC&count=1&startIndex=0&bidderId=2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "Lego"
+								},
+								{
+									"key": "categoryIds",
+									"value": "23"
+								},
+								{
+									"key": "sellerId",
+									"value": "1"
+								},
+								{
+									"key": "sortBy",
+									"value": "RESERVE_ASC"
+								},
+								{
+									"key": "count",
+									"value": "1"
+								},
+								{
+									"key": "startIndex",
+									"value": "0"
+								},
+								{
+									"key": "bidderId",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /auctions/ (bidderId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var data = pm.response.json();\r",
+									"pm.test(\"Response has length 3\", function () {\r",
+									"    pm.expect(data.auctions.length).to.equal(3)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Count has correct value 3\", function () {\r",
+									"    pm.expect(data.count).to.equal(3)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is ordered correctly\", function () {\r",
+									"    pm.expect(data.auctions[0]['auctionId']).to.equal(13);\r",
+									"    pm.expect(data.auctions[2]['auctionId']).to.equal(1);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions?bidderId=2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions"
+							],
+							"query": [
+								{
+									"key": "bidderId",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /auctions/ (with parameters: categoryIds)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"expectedData = [\r",
+									"        {\r",
+									"            \"auctionId\": 6,\r",
+									"            \"title\": \"2019 Lamborghini Aventador\",\r",
+									"            \"reserve\": 350000,\r",
+									"            \"sellerId\": 4,\r",
+									"            \"categoryId\": 25,\r",
+									"            \"sellerFirstName\": \"Jack\",\r",
+									"            \"sellerLastName\": \"Chen\",\r",
+									"            \"endDate\": \"2021-12-01T09:30:00.000Z\",\r",
+									"            \"numBids\": 0,\r",
+									"            \"highestBid\": null\r",
+									"        },\r",
+									"        {\r",
+									"            \"auctionId\": 4,\r",
+									"            \"title\": \"Mazda MX-5 Auto\",\r",
+									"            \"reserve\": 13000,\r",
+									"            \"sellerId\": 1,\r",
+									"            \"categoryId\": 25,\r",
+									"            \"sellerFirstName\": \"Kristy\",\r",
+									"            \"sellerLastName\": \"Lincoln\",\r",
+									"            \"endDate\": \"2022-09-30T10:59:59.000Z\",\r",
+									"            \"numBids\": 0,\r",
+									"            \"highestBid\": null\r",
+									"        }\r",
+									"    ]\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var data = pm.response.json();\r",
+									"pm.test(\"Expect correct count 2\", function() {\r",
+									"    pm.expect(data.count).to.equal(2)\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Response has length 2\", function () {\r",
+									"    pm.expect(data.auctions.length).to.equal(2)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expected auctions returned\", function() {\r",
+									"    for(let index=0; index<data.auctions.length; ++index){\r",
+									"        pm.expect(data.auctions[index].auctionId).to.equal(expectedData[index].auctionId);\r",
+									"        pm.expect(data.auctions[index].title).to.equal(expectedData[index].title);\r",
+									"        pm.expect(data.auctions[index].categoryId).to.equal(expectedData[index].categoryId);\r",
+									"        pm.expect(data.auctions[index].sellerId).to.equal(expectedData[index].sellerId);\r",
+									"        pm.expect(data.auctions[index].sellerFirstName).to.equal(expectedData[index].sellerFirstName);\r",
+									"        pm.expect(data.auctions[index].sellerLastName).to.equal(expectedData[index].sellerLastName);\r",
+									"        pm.expect(data.auctions[index].reserve).to.equal(expectedData[index].reserve);\r",
+									"        pm.expect(data.auctions[index].numBids).to.equal(expectedData[index].numBids);\r",
+									"        pm.expect(data.auctions[index].highestBid).to.equal(expectedData[index].highestBid);\r",
+									"        pm.expect(data.auctions[index].endDate).to.equal(expectedData[index].endDate);\r",
+									"    }\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions?categoryIds=25",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions"
+							],
+							"query": [
+								{
+									"key": "categoryIds",
+									"value": "25"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /auctions/ (with parameters: categoryIds (no match))",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var data = pm.response.json();\r",
+									"pm.test(\"Expect correct count 0\", function() {\r",
+									"    pm.expect(data.count).to.equal(0)\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Response has length 0\", function () {\r",
+									"    pm.expect(data.auctions.length).to.equal(0)\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions?categoryIds=3",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions"
+							],
+							"query": [
+								{
+									"key": "categoryIds",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /auctions/ (no authentication)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"title\": \"Postman mint condition\",\r\n\t\"description\": \"Selling a mint condition Postman collection\",\r\n    \"reserve\": 100,\r\n\t\"categoryId\": 20,\r\n\t\"startDate\": \"2022-11-11 18:25:00\",\r\n\t\"endDate\": \"2022-12-30 18:25:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /auctions/",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"auctionId is returned\", function () {\r",
+									"    pm.expect(pm.response.json().auctionId).to.be.a(\"number\")\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Set auction_id after creation\", function() {\r",
+									"    const auctionId = pm.response.json().auctionId;\r",
+									"    if (typeof auctionId !== \"undefined\") {\r",
+									"        pm.globals.set(\"auction_id\", auctionId);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-authorization",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"title\": \"Postman mint condition\",\r\n\t\"description\": \"Selling a mint condition Postman collection\",\r\n    \"reserve\": 100,\r\n\t\"categoryId\": 20,\r\n\t\"endDate\": \"2022-12-30 18:25:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /auctions/:id (mine)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var expectedData = {\r",
+									"    \"auctionId\": 23,\r",
+									"    \"title\": \"Postman mint condition\",\r",
+									"    \"description\": \"Selling a mint condition Postman collection\",\r",
+									"    \"categoryId\": 20,\r",
+									"    \"sellerId\": 18,\r",
+									"    \"sellerFirstName\": \"Mike\",\r",
+									"    \"sellerLastName\": \"Wheeler\",\r",
+									"    \"reserve\": 100,\r",
+									"    \"numBids\": 0,\r",
+									"    \"highestBid\": null,\r",
+									"    \"endDate\": \"2022-12-30T05:25:00.000Z\"\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var data = pm.response.json()\r",
+									"pm.test(\"Expected auction data\", function() {\r",
+									"    pm.expect(data.auctionId).to.be.a(\"number\");\r",
+									"    pm.expect(data.title).to.equal(expectedData.title);\r",
+									"    pm.expect(data.description).to.equal(expectedData.description);\r",
+									"    pm.expect(data.categoryId).to.equal(expectedData.categoryId);\r",
+									"    pm.expect(data.sellerId).to.equal(expectedData.sellerId);\r",
+									"    pm.expect(data.sellerFirstName).to.equal(expectedData.sellerFirstName);\r",
+									"    pm.expect(data.sellerLastName).to.equal(expectedData.sellerLastName);\r",
+									"    pm.expect(data.reserve).to.equal(expectedData.reserve);\r",
+									"    pm.expect(data.numBids).to.equal(expectedData.numBids);\r",
+									"    pm.expect(data.highestBid).to.equal(expectedData.highestBid);\r",
+									"    pm.expect(data.startDate).to.equal(expectedData.startDate);\r",
+									"    pm.expect(data.endDate).to.equal(expectedData.endDate);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/{{auction_id}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"{{auction_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /auctions/:id (someone else's)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var expectedData = {\r",
+									"    \"auctionId\": 1,\r",
+									"    \"title\": \"Vintage Lego Set\",\r",
+									"    \"description\": \"An aged search and rescue Lego set, some pieces are missing.\",\r",
+									"    \"categoryId\": 23,\r",
+									"    \"sellerId\": 1,\r",
+									"    \"sellerFirstName\": \"Kristy\",\r",
+									"    \"sellerLastName\": \"Lincoln\",\r",
+									"    \"reserve\": 25,\r",
+									"    \"numBids\": 9,\r",
+									"    \"highestBid\": 100,\r",
+									"    \"endDate\": \"2022-05-01T10:30:00.000Z\"\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var data = pm.response.json()\r",
+									"pm.test(\"Expected auction data\", function() {\r",
+									"    pm.expect(data.auctionId).to.equal(expectedData.auctionId);\r",
+									"    pm.expect(data.title).to.equal(expectedData.title);\r",
+									"    pm.expect(data.description).to.equal(expectedData.description);\r",
+									"    pm.expect(data.categoryId).to.equal(expectedData.categoryId);\r",
+									"    pm.expect(data.sellerId).to.equal(expectedData.sellerId);\r",
+									"    pm.expect(data.sellerFirstName).to.equal(expectedData.sellerFirstName);\r",
+									"    pm.expect(data.sellerLastName).to.equal(expectedData.sellerLastName);\r",
+									"    pm.expect(data.reserve).to.equal(expectedData.reserve);\r",
+									"    pm.expect(data.numBids).to.equal(expectedData.numBids);\r",
+									"    pm.expect(data.highestBid).to.equal(expectedData.highestBid);\r",
+									"    pm.expect(data.startDate).to.equal(expectedData.startDate);\r",
+									"    pm.expect(data.endDate).to.equal(expectedData.endDate);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/1",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH /auctions/:id (mine)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"title\": \"Damaged Postman Collection\",\n\t\"description\": \"Accidentally deleted part of the collection, updated reserve to match.\",\n    \"reserve\": 25,\n    \"categoryId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/{{auction_id}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"{{auction_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH /auctions/:id (doesnt exist)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"title\": \"hackerman waz here\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/999999999",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"999999999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /auctions/:id (mine)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/{{auction_id}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"{{auction_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /auctions/categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var data = pm.response.json();\r",
+									"pm.test(\"Response has length 25\", function () {\r",
+									"    pm.expect(data.length).to.equal(25)\r",
+									"});\r",
+									"\r",
+									"//Todo: Create a tests that checks categories are correct"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/categories",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /auctions/ (minimal) Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"auctionId is returned\", function () {\r",
+									"    pm.expect(pm.response.json().auctionId).to.be.a(\"number\")\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Set auction_id after creation\", function() {\r",
+									"    // done here for future requests so that the auction will be open\r",
+									"    const auctionId = pm.response.json().auctionId;\r",
+									"    if (typeof auctionId !== \"undefined\") {\r",
+									"        pm.globals.set(\"auction_id\", auctionId);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"title\": \"Breifcase (With Postman logo)\",\r\n\t\"description\": \"Selling a limited edition Postman briefcase, get in quick!\",\r\n\t\"categoryId\": 5,\r\n\t\"endDate\": \"2022-12-30 18:25:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /executeSql (add bid to auction)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const auction_id = pm.globals.get(\"auction_id\");",
+									"const input = request.data.replace(\"{{auction_id}}\", auction_id);",
+									"// sets the auction id variable within the request body before the request is sent"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "INSERT INTO `auction_bid` (`auction_id`, `user_id`, `amount`) VALUES ({{auction_id}}, 1, 100);",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/executeSql",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"executeSql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /auctions/:id (mine, bid made)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"title\": \"Breifcase (With Postman logo)\",\r\n\t\"description\": \"Selling a limited edition Postman briefcase, get in quick!\",\r\n\t\"categoryId\": 5,\r\n\t\"endDate\": \"2022-12-30 18:25:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/{{auction_id}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"{{auction_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "auctions.bids",
+			"item": [
+				{
+					"name": "GET /auctions/:id/bids",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var data = pm.response.json();\r",
+									"pm.test(\"Response has length 9\", function () {\r",
+									"    pm.expect(data.length).to.equal(9)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is ordered correctly, with correct amounts\", function () {\r",
+									"    pm.expect(data[0]['amount']).to.equal(100);\r",
+									"    pm.expect(data[1]['amount']).to.equal(85);\r",
+									"    pm.expect(data[data.length-2]['amount']).to.equal(30);\r",
+									"    pm.expect(data[data.length-1]['amount']).to.equal(25);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/1/bids",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"1",
+								"bids"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /auctions/:id/bids (doesnt exist)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/999999999/bids",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"999999999",
+								"bids"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /auctions/:id/bids",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"amount\": 101\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/1/bids",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"1",
+								"bids"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /auctions/:id/bids (mine)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"amount\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/{{auction_id}}/bids",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"{{auction_id}}",
+								"bids"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "auctions.images",
+			"item": [
+				{
+					"name": "PUT /auctions/:id/image (mine; jpeg)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "image/jpeg"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "auction_sample.jpg"
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/{{auction_id}}/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"{{auction_id}}",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /auctions/:id/image (mine; jpg)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content Type is correct\", function() {\r",
+									"    pm.response.to.be.header(\"Content-Type\", \"image/jpeg\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/{{auction_id}}/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"{{auction_id}}",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /auctions/:id/image (someone else's)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"//TODO Test that an image is returned"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/3/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"3",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /auctions/:id/image (mine; bmp; not allowed)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "image/bmp"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "MARBLES.BMP"
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auctions/{{auction_id}}/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auctions",
+								"{{auction_id}}",
+								"image"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "users.images",
+			"item": [
+				{
+					"name": "GET /users/:id/image (me; no image yet)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{user_id}}/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /users/:id/image (me)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "image/jpeg",
+								"type": "text"
+							},
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "user_sample.jpg"
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{user_id}}/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /users/:id/image (me)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content Type is correct\", function() {\r",
+									"    pm.response.to.be.header(\"Content-Type\", \"image/jpeg\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{user_id}}/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /users/:id/image (another user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "image/jpeg"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "user_sample.jpg"
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/1/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"1",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /users/:id/image (doesnt exist)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/users/99999999/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"99999999",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /users/:id/image (me)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{user_id}}/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /users/:id/image (no authentication)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{user_id}}/image",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"image"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

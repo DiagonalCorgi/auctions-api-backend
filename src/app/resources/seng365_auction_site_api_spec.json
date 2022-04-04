@@ -1,0 +1,1287 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "SENG365 2022: Auction Site API",
+    "version": "1.0.2",
+    "description": "This specification documents the API that must be implemented for Assignment 1. The API provides all of the server-side functionality necessary in order to implement the user stories for Assignment 2."
+  },
+  "servers": [
+    {
+      "url": "https://seng365.csse.canterbury.ac.nz/api/v1",
+      "description": "reference server"
+    },
+    {
+      "url": "http://localhost:4941/api/v1",
+      "description": "Your development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "backdoor",
+      "description": "Development-only endpoints for resetting and resampling the database."
+    },
+    {
+      "name": "auctions",
+      "description": "Endpoints for retrieving, creating, modifying, and deleting auctions."
+    },
+    {
+      "name": "auctions.images",
+      "description": "Endpoints for retrieving and uploading auction hero images."
+    },
+    {
+      "name": "auctions.bids",
+      "description": "Endpoints for retrieving and adding bids for auctions."
+    },
+    {
+      "name": "users",
+      "description": "Endpoints for registering, logging in, and retrieving/modifying user information."
+    },
+    {
+      "name": "users.images",
+      "description": "Endpoints for retrieving, uploading, and deleting user profile images."
+    }
+  ],
+  "paths": {
+    "/auctions": {
+      "get": {
+        "tags": [
+          "auctions"
+        ],
+        "summary": "View auctions.",
+        "description": "Gets list of all auctions with a subset of auction information. By default, the auctions should be sorted by the closing date of the auctions. The list should be filtered, then sorted, then paginated using `startIndex` and `count`. The returned object should include the total number of auctions that match the search criteria, which may differ from the number returned by the query (this is for client pagination).",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "startIndex",
+            "description": "Number of items to skip before returning results.",
+            "schema": {
+              "$ref": "#/components/schemas/auctionSearchRequest/properties/startIndex"
+            }
+          },
+          {
+            "in": "query",
+            "name": "count",
+            "description": "Number of items to include in results.",
+            "schema": {
+              "$ref": "#/components/schemas/auctionSearchRequest/properties/count"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "description": "Only include auctions that have the search term within their title or description.",
+            "schema": {
+              "$ref": "#/components/schemas/auctionSearchRequest/properties/q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "categoryIds",
+            "description": "Include auctions match any of the given categories (ids). Only IDs that map to categories are allowed.",
+            "schema": {
+              "$ref": "#/components/schemas/auctionSearchRequest/properties/categoryIds"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sellerId",
+            "description": "Only include auctions that have the given user (id) as their seller.",
+            "schema": {
+              "$ref": "#/components/schemas/auctionSearchRequest/properties/sellerId"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bidderId",
+            "description": "Only include auctions that have the given user (id) as a bidder.",
+            "schema": {
+              "$ref": "#/components/schemas/auctionSearchRequest/properties/bidderId"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "description": "Sort the auctions by the given property, according to the following rules: * ALPHABETICAL_ASC: alphabetically by title, A - Z * ALPHABETICAL_DESC: alphabetically by title, Z - A * CLOSING_SOON: date, from end date earliest to latest * CLOSING_LAST: date, from end date latest to earliest * BIDS_ASC: the current bid, from least to most * BIDS_DESC: the current, from most to least * RESERVE_ASC: the reserve price from lowest to highest * RESERVE_DESC: the reserve price from highest to lowest",
+            "schema": {
+              "$ref": "#/components/schemas/auctionSearchRequest/properties/sortBy"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/auctionsReturn"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "auctions"
+        ],
+        "summary": "Add a new auction.",
+        "description": "The category id number `categoryId` must reference an existing category. `title`, `description`, `endDate` and `categoryId` are required, other properties are optional. The auction `endDate` must be in the future. If no `reserve` price is specified it will automatically be set to 1.",
+        "security": [
+          {
+            "UserToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "CreateAuctionRequest",
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/auctionOverview/properties/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/auction/properties/description"
+                  },
+                  "categoryId": {
+                    "type": "number"
+                  },
+                  "endDate": {
+                    "$ref": "#/components/schemas/dateTimeInput"
+                  },
+                  "reserve": {
+                    "$ref": "#/components/schemas/auctionOverview/properties/reserve"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description",
+                  "categoryId",
+                  "endDate"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "auctionId": {
+                      "$ref": "#/components/schemas/auctionOverview/properties/auctionId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auctions/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "description": "ID of the auction.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/auctionOverview/properties/auctionId"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "auctions"
+        ],
+        "summary": "Retrieve detailed information about an auction.",
+        "description": "Retrieve all information about the auction matching `id`",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/auction"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "auctions"
+        ],
+        "summary": "Change an auction's details.",
+        "description": " Only accessible to the seller of the auction. If updated, the `categoryId` must reference an existing category. No changes may be made after a bid has been placed on an auction.",
+        "security": [
+          {
+            "UserToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "changeAuctionDetailsRequest",
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/auctionOverview/properties/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/auction/properties/description"
+                  },
+                  "categoryId": {
+                    "type": "number"
+                  },
+                  "endDate": {
+                    "$ref": "#/components/schemas/dateTimeInput"
+                  },
+                  "reserve": {
+                    "$ref": "#/components/schemas/auctionOverview/properties/reserve"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "auctions"
+        ],
+        "summary": "Delete an auction.",
+        "description": "Only accessible to the seller of the auction. Not accessible after a bid has been placed.",
+        "security": [
+          {
+            "UserToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auctions/categories": {
+      "get": {
+        "tags": [
+          "auctions"
+        ],
+        "summary": "Retrieve all data about auction categories.",
+        "description": "Retrieve list of all categories with `categoryId` and `name` values. Do not assume the list of categories will not change.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/category"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auctions/{id}/image": {
+      "parameters": [
+        {
+          "name": "id",
+          "description": "ID of the auction.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/auctionOverview/properties/auctionId"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "auctions.images"
+        ],
+        "summary": "Retrieve an auction's hero image.",
+        "description": "The response MIME type will be either `image/png`, `image/jpeg`, or `image/gif`, depending on the file type of the image being retrieved.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "image": {
+                "schema": {
+                  "$ref": "#/components/schemas/binaryImageFile"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "auctions.images"
+        ],
+        "summary": "Set an auction's hero image.",
+        "description": "Only accessible to the seller of the auction. If the auction already has a hero image, the current hero image will be replaced with it, and a 200 OK response will be sent. If not, a 201 Created response will be sent. <br> If the file is a `.png`, the request will be sent with `Content-Type: image/png`. If the file is a `.jpeg` or `.jpg`, the request will be sent with `Content-Type: image/jpeg`. If the file is a `.gif`, the request will be sent with `Content-Type: image/gif`. No other image types should be allowed. <br> The request body should contain the raw binary content of the photo, i.e. it should not be in `multipart/form-data` format or contain any file metadata. ",
+        "security": [
+          {
+            "UserToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "image/png": {
+              "schema": {
+                "$ref": "#/components/schemas/binaryImageFile"
+              }
+            },
+            "image/jpeg": {
+              "schema": {
+                "$ref": "#/components/schemas/binaryImageFile"
+              }
+            },
+            "image/gif": {
+              "schema": {
+                "$ref": "#/components/schemas/binaryImageFile"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auctions/{id}/bids": {
+      "parameters": [
+        {
+          "name": "id",
+          "description": "ID of the auction.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/auctionOverview/properties/auctionId"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "auctions.bids"
+        ],
+        "summary": "Retrieve an auction's bids.",
+        "description": "The bids are returned numerically decreasing in bid `amount`, which should also be reverse chronological order of `timestamp`",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/bid"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "auctions.bids"
+        ],
+        "summary": "Place a bid on an auction.",
+        "description": "A user can place a bid on an auction that is open, this bid must be higher than the most recent/current highest bid.",
+        "security": [
+          {
+            "UserToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/postBid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users/register": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Register as a new user.",
+        "description": "The email must be syntactically valid (e.g. it has to include an `@`, but whether or not it is actually a registered email address will not be checked). The email address must not already be in use. The password must not be empty an empty string.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "RegisterUserRequest",
+                "properties": {
+                  "firstName": {
+                    "$ref": "#/components/schemas/user/properties/firstName"
+                  },
+                  "lastName": {
+                    "$ref": "#/components/schemas/user/properties/lastName"
+                  },
+                  "email": {
+                    "$ref": "#/components/schemas/user/properties/email"
+                  },
+                  "password": {
+                    "$ref": "#/components/schemas/fullUser/properties/password"
+                  }
+                },
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "userId": {
+                      "$ref": "#/components/schemas/fullUser/properties/userId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Log in as an existing user.",
+        "description": "The response will contain a (unique) randomly-generated token that the client-side should store. <br> Whenever the client makes a request that requires authentication, it should provide that same token as the value of the `X-Authorization` header in the request. <br> The server will compare this to the value it has stored in the database to authenticate that request.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "LoginRequest",
+                "properties": {
+                  "email": {
+                    "$ref": "#/components/schemas/user/properties/email"
+                  },
+                  "password": {
+                    "$ref": "#/components/schemas/fullUser/properties/password"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "LoginSuccessResponse",
+                  "properties": {
+                    "userId": {
+                      "$ref": "#/components/schemas/fullUser/properties/userId"
+                    },
+                    "token": {
+                      "$ref": "#/components/schemas/fullUser/properties/userToken"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users/logout": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Log out the currently authorised user.",
+        "description": "User will be logged out and their token will no longer be acceptable for authenticated requests",
+        "security": [
+          {
+            "UserToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "description": "ID of the user.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/fullUser/properties/userId"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Retrieve information about a user.",
+        "description": "The email field is only included when the currently authenticated user is viewing their **own** details.",
+        "security": [
+          {},
+          {
+            "UserToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/user"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Change a user's details.",
+        "description": "Only accessible by the user themselves. The email must be syntactically valid (e.g. it has to include an `@`, but whether or not it is actually a registered email address will not be checked). The email address must not already be in use. The password must not be an empty string. If the password is being changed the new value must be in the `password` field and the current password must be provided **correctly** in the `currentPassword` field.",
+        "security": [
+          {
+            "UserToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "ChangeUserDetailsRequest",
+                "properties": {
+                  "firstName": {
+                    "$ref": "#/components/schemas/user/properties/firstName"
+                  },
+                  "lastName": {
+                    "$ref": "#/components/schemas/user/properties/lastName"
+                  },
+                  "email": {
+                    "$ref": "#/components/schemas/user/properties/email"
+                  },
+                  "password": {
+                    "$ref": "#/components/schemas/fullUser/properties/password"
+                  },
+                  "currentPassword": {
+                    "$ref": "#/components/schemas/fullUser/properties/password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users/{id}/image": {
+      "parameters": [
+        {
+          "name": "id",
+          "description": "ID of the user.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/fullUser/properties/userId"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "users.images"
+        ],
+        "summary": "Retrieve a user's profile image.",
+        "description": "The response MIME type will be either `image/png`, `image/jpeg`, or `image/gif`, depending on the file type of the image being retrieved.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "image": {
+                "schema": {
+                  "$ref": "#/components/schemas/binaryImageFile"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "users.images"
+        ],
+        "summary": "Set a user's profile image.",
+        "description": "Only accessible to the user themselves. If the user already has a profile photo, the current profile photo will be replaced with it, and a 200 OK response will be sent. If not, a 201 Created response will be sent. <br> If the file is a `.png`, the request will be sent with `Content-Type: image/png`. If the file is a `.jpeg` or `.jpg`, the request will be sent with `Content-Type: image/jpeg`. If the file is a `.gif`, the request will be sent with `Content-Type: image/gif`. <br> The request body should contain the raw binary content of the photo, i.e. it should not be in `multipart/form-data` format or contain any file metadata. ",
+        "security": [
+          {
+            "UserToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "image/png": {
+              "schema": {
+                "$ref": "#/components/schemas/binaryImageFile"
+              }
+            },
+            "image/jpeg": {
+              "schema": {
+                "$ref": "#/components/schemas/binaryImageFile"
+              }
+            },
+            "image/gif": {
+              "schema": {
+                "$ref": "#/components/schemas/binaryImageFile"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "users.images"
+        ],
+        "summary": "Delete a user's profile image.",
+        "security": [
+          {
+            "UserToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/reload": {
+      "post": {
+        "tags": [
+          "backdoor"
+        ],
+        "summary": "Force reset of database to original structure and reload sample of data into database.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/reset": {
+      "post": {
+        "tags": [
+          "backdoor"
+        ],
+        "summary": "Force reset of database to original structure.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/resample": {
+      "post": {
+        "tags": [
+          "backdoor"
+        ],
+        "summary": "Reload sample of data into database.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/executeSql": {
+      "post": {
+        "tags": [
+          "backdoor"
+        ],
+        "summary": "Execute any arbitrary SQL statement provided, and return the output from the database.",
+        "description": "This is an enormous security hole, and wouldn't be present in any real application. However, we're using it for testing purposes in this assignment.",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "title": "SqlCommand",
+                "type": "string",
+                "example": "SELECT * FROM auctions;"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/sqlResult"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SqlResultSet"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "user": {
+        "title": "user",
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Adam"
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Anderson"
+          },
+          "email": {
+            "type": "string",
+            "minLength": 1,
+            "format": "email",
+            "example": "aaa11@uclive.ac.nz"
+          }
+        }
+      },
+      "fullUser": {
+        "title": "fullUser",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/user"
+          }
+        ],
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 11
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "format": "password",
+            "example": "letmein"
+          },
+          "userToken": {
+            "type": "string",
+            "example": "JSkIEpXk0b2jLgDpRuKAjGwCbFnDM0Tj"
+          }
+        }
+      },
+      "auction": {
+        "title": "auction",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/auctionOverview"
+          }
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Samsung S20 mint condition..."
+          },
+          "numBids": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 37,
+            "nullable": true
+          }
+        }
+      },
+      "auctionOverview": {
+        "title": "auctionOverview",
+        "type": "object",
+        "properties": {
+          "auctionId": {
+            "type": "integer",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Samsung S20"
+          },
+          "categoryId": {
+            "type": "integer",
+            "example": 1
+          },
+          "sellerId": {
+            "$ref": "#/components/schemas/fullUser/properties/userId"
+          },
+          "sellerFirstName": {
+            "$ref": "#/components/schemas/user/properties/firstName"
+          },
+          "sellerLastName": {
+            "$ref": "#/components/schemas/user/properties/lastName"
+          },
+          "reserve": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 100,
+            "nullable": true
+          },
+          "numBids": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 9,
+            "nullable": false
+          },
+          "highestBid": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 100,
+            "nullable": true
+          },
+          "endDate": {
+            "$ref": "#/components/schemas/dateTimeOutput"
+          }
+        }
+      },
+      "auctionsReturn": {
+        "title": "auctions",
+        "type": "object",
+        "properties": {
+          "auctions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/auctionOverview"
+            }
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 3,
+            "nullable": false
+          }
+        }
+      },
+      "category": {
+        "title": "category",
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Smartphones"
+          }
+        }
+      },
+      "auctionSearchRequest": {
+        "title": "auctionSearchRequest",
+        "type": "object",
+        "properties": {
+          "startIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "example": 20
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 10
+          },
+          "q": {
+            "$ref": "#/components/schemas/auctionOverview/properties/title"
+          },
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/category/properties/categoryId"
+            }
+          },
+          "sellerId": {
+            "$ref": "#/components/schemas/fullUser/properties/userId"
+          },
+          "bidderId": {
+            "$ref": "#/components/schemas/fullUser/properties/userId"
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "ALPHABETICAL_ASC",
+              "ALPHABETICAL_DESC",
+              "BIDS_ASC",
+              "BIDS_DESC",
+              "CLOSING_SOON",
+              "CLOSING_LAST",
+              "RESERVE_ASC",
+              "RESERVE_DESC"
+            ],
+            "default": "CLOSING_SOON"
+          },
+          "reverseSort": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "postBid": {
+        "title": "postBid",
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "example": 20,
+            "nullable": false
+          }
+        }
+      },
+      "bid": {
+        "title": "bid",
+        "type": "object",
+        "properties": {
+          "bidderId": {
+            "$ref": "#/components/schemas/fullUser/properties/userId"
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "example": 20
+          },
+          "firstName": {
+            "$ref": "#/components/schemas/user/properties/firstName"
+          },
+          "lastName": {
+            "$ref": "#/components/schemas/user/properties/lastName"
+          },
+          "timestamp": {
+            "$ref": "#/components/schemas/dateTimeOutput"
+          }
+        }
+      },
+      "dateTimeInput": {
+        "title": "dateTimeInput",
+        "description": "A datetime expressed with no timezone, as either a date (yyyy-MM-dd) or date and time (yyyy-MM-dd hh:mm:ss.sss)",
+        "type": "string",
+        "example": "2012-04-23 18:25:43.511"
+      },
+      "dateTimeOutput": {
+        "title": "dateTimeOutput",
+        "description": "A UTC datetime expressed in ISO8601 format (yyyy-MM-ddThh:mm:ss.sssZ)",
+        "type": "string",
+        "example": "2012-04-23T18:25:43.511Z"
+      },
+      "binaryImageFile": {
+        "type": "string",
+        "format": "binary",
+        "description": "The raw content of the PNG, JPEG, or GIF image file.",
+        "example": "(raw content of PNG, JPEG, or GIF image file)"
+      },
+      "sqlResult": {
+        "type": "object",
+        "properties": {
+          "fieldCount": {
+            "type": "integer",
+            "example": 0
+          },
+          "affectedRows": {
+            "type": "integer",
+            "example": 1
+          },
+          "insertId": {
+            "type": "integer",
+            "example": 0
+          },
+          "serverStatus": {
+            "type": "integer",
+            "example": 2
+          },
+          "warningCount": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "example": "(Rows matched: 1  Changed: 0  Warnings: 0"
+          },
+          "protocol41": {
+            "type": "boolean"
+          },
+          "changedRows": {
+            "type": "integer"
+          }
+        }
+      },
+      "SqlResultSet": {
+        "type": "array",
+        "items": {}
+      }
+    },
+    "securitySchemes": {
+      "UserToken": {
+        "type": "apiKey",
+        "name": "X-Authorization",
+        "in": "header"
+      }
+    }
+  }
+}
